@@ -1,0 +1,980 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Dataiku Site Health Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  /* Dataiku brand: deep forest #06312E, mint #3EDAB2, warm paper #FFFEF9, cream #F8F4E4, stone #EEEDEA */
+  --page:#eeedea; --surface:#fffef9; --surface-2:#f8f4e4; --surface-3:#e3e2dd;
+  --ink:#1a1a1a; --ink-2:#55554f; --muted:#8a8981;
+  --line:#deddd4; --line-2:#c9c7bd; --grid:#e6e4db;
+  --accent:#06312e; --accent-soft:#c8f3e8; --btn-ink:#ffffff;
+  --mint:#3edab2; --forest:#06312e;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --good-ink:#00700a; --crit-ink:#b32f2f; --warn-ink:#7d5800;
+  --good-wash:#e3f2e0; --crit-wash:#faeae6; --warn-wash:#f8f0d8; --info-wash:#d9f4ec;
+  --band:#06312e;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --disp:"Newsreader",Georgia,"Times New Roman",serif;
+  --shadow:none;
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#04211f; --surface:#06312e; --surface-2:#0a3b36; --surface-3:#124d46;
+  --ink:#f1f6f3; --ink-2:#aec6c0; --muted:#7e968f;
+  --line:#12514a; --line-2:#1b6259; --grid:#0e453f;
+  --accent:#3edab2; --accent-soft:#0e4a43; --btn-ink:#04211f;
+  --mint:#3edab2; --forest:#06312e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0f9c0f; --s7:#9085e9;
+  --good-ink:#3fc03f; --crit-ink:#f08585; --warn-ink:#e0ad3c;
+  --good-wash:#0e3a20; --crit-wash:#3a2320; --warn-wash:#382d17; --info-wash:#0d4038;
+  --shadow:none;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--disp);margin:0;text-wrap:balance;letter-spacing:-0.012em}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+.topbar{background:var(--band);color:#fff;border-bottom:3px solid var(--mint)}
+.hwrap{max-width:1320px;margin:0 auto;padding:18px 24px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:16px;min-width:0;flex-wrap:wrap}
+.titlerow{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
+.wordmark{font-family:var(--sans);font-size:25px;font-weight:500;letter-spacing:-0.02em;color:#fff;line-height:1.1}
+.pipe{font-family:var(--sans);font-size:23px;font-weight:300;color:rgba(255,255,255,.45);line-height:1.1}
+.mark{flex:none;display:grid;place-items:center;color:#fff}
+.mark svg{display:block;width:31px;height:25px}
+.brand h1{font-family:var(--disp);font-size:25px;font-weight:400;color:#fff;line-height:1.1;letter-spacing:-0.01em;white-space:nowrap}
+.subline{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:5px;font-size:12.5px;color:rgba(255,255,255,.74)}
+.tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px;background:rgba(62,218,178,.16);color:var(--mint)}
+.hright{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn:hover{background:rgba(255,255,255,.12)}
+.btn.solid{background:var(--mint);color:#06312e;border-color:var(--mint);font-weight:600}
+.btn.solid:hover{background:#5ce4c2;border-color:#5ce4c2}
+
+.tabbar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs{max-width:1320px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2.5px solid transparent;padding:14px 15px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.tab:hover{color:var(--ink-2)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:600}
+.tab .cnt{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:20px;background:var(--surface-3);color:var(--muted)}
+.tab[aria-selected="true"] .cnt{background:var(--accent-soft);color:var(--accent)}
+.tab[aria-selected="true"]{border-bottom-color:var(--mint)}
+
+main{max-width:1320px;margin:0 auto;padding:22px 24px 40px;display:flex;flex-direction:column;gap:18px}
+.panel{display:flex;flex-direction:column;gap:18px}
+.panel[hidden]{display:none}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:18px 20px}
+.card > header{position:static;background:none;border:0;padding:0;margin-bottom:15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.card h2{font-family:var(--disp);font-size:19px;font-weight:400;letter-spacing:-0.005em;display:flex;align-items:center;gap:10px}
+.card h2 .tick{width:4px;height:17px;border-radius:1px;flex:none;background:var(--accent)}
+.card .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(196px,1fr))}
+.kpi{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--kc,var(--accent));border-radius:5px;padding:14px 16px 15px;display:flex;flex-direction:column;gap:5px}
+.kpi .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.kpi .val{font-family:var(--sans);font-size:31px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .foot{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.delta{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--surface-3);color:var(--ink-2)}
+.delta.up{color:var(--good-ink);background:var(--good-wash)}
+.delta.down{color:var(--crit-ink);background:var(--crit-wash)}
+
+/* ---------- callout ---------- */
+.callout{border-radius:5px;padding:13px 17px;font-size:13px;line-height:1.6;display:flex;gap:11px;align-items:flex-start;border:1px solid transparent}
+.callout .ic{font-size:14px;line-height:1.4;flex:none}
+.callout b{font-weight:600}
+.callout.good{background:var(--good-wash);border-color:color-mix(in srgb,var(--good) 32%,transparent);color:var(--ink)}
+.callout.warn{background:var(--warn-wash);border-color:color-mix(in srgb,var(--warn) 42%,transparent);color:var(--ink)}
+.callout.bad{background:var(--crit-wash);border-color:color-mix(in srgb,var(--crit) 32%,transparent);color:var(--ink)}
+.callout.info{background:var(--info-wash);border-color:color-mix(in srgb,var(--s1) 30%,transparent);color:var(--ink)}
+.callout .hl{font-family:var(--mono);font-weight:600}
+
+/* ---------- charts ---------- */
+.chartbox{position:relative;width:100%}
+.chartbox svg{display:block;width:100%;overflow:visible}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--surface);border:1px solid var(--line-2);border-radius:4px;padding:9px 11px;font-size:12px;box-shadow:0 8px 24px rgba(26,26,26,.14);z-index:10;min-width:140px}
+.tip .th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.tip .tr{display:flex;align-items:center;gap:9px;justify-content:space-between;padding:1.5px 0}
+.tip .tr .nm{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip .tr b{font-variant-numeric:tabular-nums;font-weight:600}
+.sw{width:9px;height:9px;border-radius:2px;flex:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.lgi{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px 4px 8px;cursor:pointer;user-select:none;transition:border-color .12s}
+.lgi:hover{border-color:var(--line-2)}
+.lgi[aria-pressed="false"]{opacity:.38}
+.smgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:13px}
+.sm{border:1px solid var(--line);border-radius:4px;padding:12px 13px 9px;background:var(--surface-2)}
+.sm .nm{font-size:12px;font-weight:600;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm .scope{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm .v{font-family:var(--sans);font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;margin:3px 0 4px;display:flex;align-items:baseline;gap:8px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:3px;gap:2px}
+.seg button{background:none;border:0;border-radius:5px;padding:6px 12px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(26,26,26,.09);font-weight:600}
+
+/* ---------- stacked share bar ---------- */
+.share{display:flex;width:100%;height:34px;border-radius:4px;overflow:hidden;gap:2px;background:var(--surface-3)}
+.share i{display:block;height:100%;min-width:3px;position:relative;transition:filter .12s}
+.share i:hover{filter:brightness(1.12)}
+.sharelab{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+.sharelab span{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:3px 10px 3px 7px}
+.sharelab b{font-variant-numeric:tabular-nums;font-weight:600;font-family:var(--mono);font-size:11px}
+
+/* ---------- tables ---------- */
+.tscroll{overflow-x:auto;margin:0 -20px;padding:0 20px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:500;text-align:right;padding:0 10px 9px;border-bottom:1.5px solid var(--line-2);white-space:nowrap;vertical-align:bottom}
+th.l,td.l{text-align:left}
+td{padding:10px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tr[hidden]{display:none}
+tbody tr:hover td{background:var(--surface-2)}
+td.name{font-weight:600;white-space:nowrap}
+.mono{font-family:var(--mono)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2.5px 9px;border-radius:20px;border:1px solid transparent;white-space:nowrap}
+.pill .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.pill.done{background:var(--good-wash);color:var(--good-ink);border-color:color-mix(in srgb,var(--good) 34%,transparent)}
+.pill.prog{background:var(--warn-wash);color:var(--warn-ink);border-color:color-mix(in srgb,var(--warn) 44%,transparent)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2.5px 8px;border-radius:4px;white-space:nowrap}
+.prio.high{color:var(--crit-ink);background:var(--crit-wash)}
+.prio.medium{color:var(--warn-ink);background:var(--warn-wash)}
+.prio.low{color:var(--accent);background:var(--accent-soft)}
+.bar{height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden;min-width:64px}
+.bar i{display:block;height:100%;border-radius:4px}
+.rowbtn{background:none;border:0;padding:0;font:inherit;text-align:left;cursor:pointer;color:var(--ink);font-weight:600;display:flex;gap:8px;align-items:baseline}
+.rowbtn .chev{color:var(--muted);font-size:10px;transition:transform .15s;flex:none}
+tr.open .rowbtn .chev{transform:rotate(90deg)}
+tr.open > td{background:var(--surface-2)}
+.detail td{background:var(--surface-2);padding:2px 10px 16px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;text-align:left;padding-top:11px;border-top:1px dashed var(--line-2)}
+.dgrid h4{margin:0 0 6px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500}
+.dgrid p{margin:0;font-size:12.5px;color:var(--ink-2);white-space:pre-wrap;max-width:62ch}
+
+/* ---------- lists ---------- */
+.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.actcol h3{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.actcol ol{list-style:none;counter-reset:a;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.actcol li{counter-increment:a;display:grid;grid-template-columns:26px 1fr;gap:10px;padding:11px 0;border-top:1px solid var(--grid)}
+.actcol li::before{content:counter(a,decimal-leading-zero);font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--lc,var(--muted));padding-top:2px}
+.actcol li b{font-weight:600;font-size:13px;display:block;margin-bottom:2px}
+.actcol li span{font-size:12.5px;color:var(--ink-2);max-width:62ch;display:block}
+.stripe{width:4px;height:14px;border-radius:2px;flex:none}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:13px}
+.q{border:1px solid var(--line);border-left:4px solid var(--qc,var(--s1));border-radius:4px;padding:14px 16px;background:var(--surface-2)}
+.q h4{margin:0 0 9px;font-size:13px;font-weight:700}
+.q dl{margin:0;display:flex;flex-direction:column;gap:9px}
+.q dt{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);font-weight:500}
+.q dd{margin:2px 0 0;font-size:12.5px;color:var(--ink-2);white-space:pre-wrap}
+.notes{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px;margin-top:13px}
+.notes b{color:var(--ink-2);font-weight:600}
+footer{max-width:1320px;margin:0 auto;padding:0 24px 40px;font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* ---------- drop overlay ---------- */
+#drop{position:fixed;inset:0;z-index:100;background:color-mix(in srgb,var(--page) 80%,transparent);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:40px}
+#drop.on{display:flex}
+#drop .in{border:2px dashed var(--mint);border-radius:6px;background:var(--surface);padding:46px 56px;text-align:center;max-width:470px;box-shadow:var(--shadow)}
+#drop h3{font-size:18px;margin-bottom:7px}
+#drop p{margin:0;color:var(--muted);font-size:13px}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:120;background:var(--surface);border:1px solid var(--line-2);border-radius:5px;padding:12px 17px;font-size:13px;box-shadow:0 12px 34px rgba(26,26,26,.18);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;display:flex;align-items:center;gap:10px;max-width:min(92vw,520px)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast .dot{width:8px;height:8px;border-radius:50%;background:var(--good);flex:none}
+#toast.err .dot{background:var(--crit)}
+#toast.work .dot{background:var(--warn)}
+.empty{color:var(--muted);font-size:13px;padding:18px 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:640px){
+  .hwrap,.tabs,main,footer{padding-left:14px;padding-right:14px}
+  main{padding-top:16px}
+  .card{padding:15px 14px}
+  .tscroll{margin:0 -14px;padding:0 14px}
+  .kpi .val{font-size:26px}
+  .brand h1{font-size:18px}
+}
+</style>
+
+<div class="topbar">
+  <div class="hwrap">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 25 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.0806 13.8687H10.8242V15.4121H19.0806V13.8687Z" fill="currentColor"/><path d="M18.3117 1.3151C17.8825 0.532804 17.0515 0 16.0938 0C14.6983 0 13.5672 1.13115 13.5672 2.52659C13.5672 2.65979 13.5799 2.78876 13.601 2.91562L13.3875 3.17779L0.0419982 19.6419C-0.0235451 19.7222 -0.0108593 19.8406 0.0694841 19.9061C0.143485 19.9653 0.251314 19.9611 0.318972 19.8935L5.93667 14.2821C6.97268 13.2482 8.37657 12.6668 9.84178 12.6668H11.7975C16.0705 12.6668 18.6394 10.2332 18.1742 5.23289C18.0136 3.51185 18.1024 2.78665 18.6922 2.05933C18.9967 1.6851 19.5866 0.95355 19.5866 0.95355L18.8952 1.14807L18.3096 1.31298L18.3117 1.3151ZM16.1466 2.83739C15.7682 2.83739 15.4616 2.53082 15.4616 2.15236C15.4616 1.7739 15.7682 1.46732 16.1466 1.46732C16.5251 1.46732 16.8317 1.7739 16.8317 2.15236C16.8317 2.53082 16.5251 2.83739 16.1466 2.83739Z" fill="currentColor"/></svg>
+      </div>
+      <div style="min-width:0">
+        <div class="titlerow"><span class="wordmark">Dataiku</span><span class="pipe" aria-hidden="true">|</span><h1>Site Health Console</h1></div>
+        <div class="subline"><span id="sub-line">Pepper &times; Dataiku &middot; Technical SEO</span><span class="tag" id="sub-tag">Loading</span></div>
+      </div>
+    </div>
+    <div class="hright">
+      <button class="btn" id="btn-theme" title="Switch theme" aria-label="Switch theme">Dark mode</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab" role="tab" id="tab-health" aria-controls="panel-health" aria-selected="true">Site Health<span class="cnt" id="cnt-health"></span></button>
+    <button class="tab" role="tab" id="tab-errors" aria-controls="panel-errors" aria-selected="false">Errors &amp; Warnings<span class="cnt" id="cnt-errors"></span></button>
+    <button class="tab" role="tab" id="tab-audit" aria-controls="panel-audit" aria-selected="false">Audit Tracker<span class="cnt" id="cnt-audit"></span></button>
+  </nav>
+</div>
+
+<main>
+  <section class="panel" id="panel-health" role="tabpanel" aria-labelledby="tab-health"></section>
+  <section class="panel" id="panel-errors" role="tabpanel" aria-labelledby="tab-errors" hidden></section>
+  <section class="panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden></section>
+</main>
+
+<div id="drop"><div class="in"><h3>Drop the tracker workbook</h3><p>.xlsx export of the Dataiku Technical SEO Audit tracker. Sheets are matched by name, so column and month changes are picked up automatically.</p></div></div>
+<div id="toast"><span class="dot"></span><span id="toast-msg"></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script id="tracker-data" type="application/json">{"sheetNames":{"summary":"Summary (DomainSubdomain tracke","errors":"Errors & Warnings Tracker","audit":"Technical Audit tracker - www.d"},"grids":{"summary":[[null,"Monthly Site Health Tracker (Feb-Jul 2026)",null,null,null,null,null,null,null,null,null],[null,"Source: Screaming Frog / SEMrush Site Audit | Health score = % of pages passing all checks",null,null,null,null,null,null,null,null,null],["#","Domain / Subdomain","Type","Feb 2026 Health","Mar 2026 Health","Apr 2026 Health","May 2026 Health","Jun 2026 Health","July 2027 Health","Trend","Notes"],[1,"dataiku.com (incl. subdomains)","Full Domain",0.7,0.6883,0.6933,0.6783,0.675,0.705,"↑ ","Improved — broken internal links reduced by 71%, 4xx errors down 65%, and broken canonical URLs nearly eliminated (726 → 37) across all subdomains."],[2,"dataiku.com (excl. subdomains)","Main Domain (Website)",0.67,0.62,0.63,0.64,0.64,0.65,"↑ ","Improved — broken internal links cleaned up from 6,135 to 85, 4xx errors down 93%, and broken canonical URLs reduced from 704 to 12."],[3,"community.dataiku.com","Subdomain",0.72,0.72,0.74,0.71,0.7,0.7,"↑ ","Stable — 5xx server errors fully resolved (347 → 0); core crawlability metrics held steady."],[4,"doc.dataiku.com","Subdomain",0.55,0.56,0.56,0.55,0.51,0.52,"↑ ","Improved — 5xx server errors eliminated (7,767 → 1), 4xx errors reduced by 98%, and page load speed issues resolved (7,715 → 3)."],[5,"knowledge.dataiku.com","Subdomain",0.75,0.75,0.75,0.74,0.75,0.82,"↑ ","Improved — broken internal links fixed (680 → 2), 5xx errors resolved, and duplicate content cleared. Total errors dropped from 1,703 to 4."],[6,"academy.dataiku.com","Subdomain",0.77,0.74,0.74,0.72,0.74,0.8,"↑ ","Improved — 5xx errors resolved, malformed links and viewport issues fully cleared. Total errors dropped from 355 to 24."],[7,"developer.dataiku.com","Subdomain",0.74,0.74,0.74,0.71,0.71,0.74,"↑ ","Improved — 5xx server errors resolved (338 → 0) and overall errors reduced from 874 to 23, recovering to the Feb–Apr baseline."],[null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null],["Fix NOW (safe during migration)",null,null,null,null,null,null,null,null,null,null],[1,"Blocked Internal Resources in robots.txt \n","You're already touching robots.txt as part of migration. Unblocking CSS/JS/image files should be done now, before the new site goes live, so search engines can render pages correctly from day one.",null,null,null,null,null,null,null,null],[2,"Internal Broken Links ","Your URLs are likely changing. Fixing broken links to old URLs now is wasted effort; they may all change anyway. Audit this fresh once the new site is live.",null,null,null,null,null,null,null,null],[3,"Broken Canonical URLs\n","This is arguably the most critical one to fix during migration. If canonical tags are pointing to wrong/non-existent pages on the new site, you risk duplicate content issues and indexation problems immediately post-launch. Must be handled as part of the migration checklist.",null,null,null,null,null,null,null,null],[4,"Update Robots.txt","Block dynamic URL parameters from robots.txt to avoid duplicate page/page elements and redirection issues.",null,null,null,null,null,null,null,null],[5,"URLs with Permanent Redirect Chains ","Migration will create new chains if not planned carefully. The right move is to audit chains after the migration redirect map is finalized — fixing them now just creates work twice.",null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null],["Hold until AFTER migration",null,null,null,null,null,null,null,null,null,null],[1,"External Broken Links","Same logic. Wait for URLs to stabilize.",null,null,null,null,null,null,null,null],[2,"Temporary Redirects (302 → 301)"," If these exist on the pre-migration site, converting them now can interfere with your migration redirect mapping. Plan your redirect map to go straight to 301s on the new site.",null,null,null,null,null,null,null,null],[3,"Meta Description Missing ","Pure content-level task, no dependency on URL structure or redirects. Can run in parallel with migration work without any risk.",null,null,null,null,null,null,null,null],[4,"Structured Data Missing ","If you're rebuilding templates anyway, this is the best time to bake in schema markup. It won't get easier than this.",null,null,null,null,null,null,null,null]],"errors":[[null,null,null,null,"Feb'26",null,null,null,"Mar'26",null,null,null,"Apr'26",null,null,null,"May'26",null,null,null,"Jun'26",null,null,null,"Jul'26",null,null,null],["#","Website","domain/subdomain","Export link","Pages crawled","Site health","Errors","Warning","Pages crawled","Site health","Errors","Warning","Pages crawled","Site health","Errors","Warning","Pages crawled","Site health","Errors","Warning","Pages crawled","Site health","Errors","Warning","Pages crawled","Site health","Errors","Warning"],[1,"https://www.dataiku.com/","Including subdomains","Link",20000,0.43,17741,138519,20000,0.45,25492,129342,20000,0.43,18843,125075,310405,0.48,371952,1890859,100000,0.48,100000,1890859,100000,0.41,166419,541877],[2,"https://www.dataiku.com/","Excluding subdomains","Link",1471,0.67,730,9277,1594,0.62,1431,7688,1605,0.63,1240,7559,2454,0.64,1107,7004,2454,0.64,1107,7004,2112,0.65,300,5236],[3,"https://community.dataiku.com/","Subdomain","Link",5000,0.72,768,21754,5000,0.72,749,21535,5000,0.74,787,21581,19907,0.71,9022,22349,2247,0.7,15139,92555,19658,0.7,665,114214],[4,"doc.dataiku.com","Subdomain","Link",5000,0.55,2754,36121,5000,0.56,2698,38424,5000,0.56,2732,38477,164042,0.55,4349,42007,11121,0.51,14455,108170,100000,0.52,154543,610137],[5,"knowledge.dataiku.com","Subdomain","Link",1454,0.75,2085,8045,1486,0.75,2097,8065,1482,0.75,2086,8045,4851,0.74,2114,9071,2473,0.75,1703,9514,678,0.82,4,7867],[6,"academy.dataiku.com","Subdomain","Link",313,0.77,23,1424,310,0.74,25,1425,314,0.74,13,1396,376,0.72,936,1457,1265,0.74,355,2102,338,0.8,24,1534],[7,"developer.dataiku.com","Subdomain","Link",438,0.74,18,5171,449,0.74,20,5340,450,0.74,33,5382,1950,0.71,716,6798,2658,0.71,874,11609,469,0.74,23,5969],[8,"pages.dataiku.com","Subdomain",null,"sudomain is blocked by \u003cnoindex> tag",null,null,null,"sudomain is blocked by \u003cnoindex> tag",null,null,null,"sudomain is blocked by \u003cnoindex> tag",null,null,null,"sudomain is blocked by \u003cnoindex> tag",null,null,null,"sudomain is blocked by \u003cnoindex> tag",null,null,null,"sudomain is blocked by \u003cnoindex> tag",null,null,null],[9,"blog.dataiku.com","Subdomain",null,"redirected domain",null,null,null,"redirected domain",null,null,null,"redirected domain",null,null,null,"redirected domain",null,null,null,"redirected domain",null,null,null,"redirected domain",null,null,null]],"audit":[[null,null,"www.dataiku.com - Technical SEO Issue Status Tracker",null,null,null,null,null,null,null,null,null,null],[null,"Updated on - 6th August 2026",null,null,null,null,null,null,null,null,null,null,null],["#","Issue","Priority","Owner","URLs in Issue (May'26)","URLs in Issue (Jun'26)","URLs in Issue (Jul'26)","URLs Fixed","% Resolved","Status","Recommendation","Dataiku Comment Updated on August 10th",null],[1,"Structured Data Missing","High","Dataiku",null,null,null,null,null,"In Progress",null,null,null],[2,"Redirect chains and loops","High","Dataiku",149,149,9,140,0.9395973154,"In Progress","Redirect URLs to their final destination URL instead of multiple redirects","9 in latest audit: DE & JA issues with Wordpress translation plugin",null],[3,"Broken internal links","High","Dataiku",10091,10091,85,10006,0.9915766525,"Completed","Remove all 404 URLs from internal links","86 broken links: about half are in the blog to do for web team to remove the broken links \nFor the rest DE & JA to solve with the migration",null],[4,"Issues with incorrect hreflang links","Medium","Dataiku",0,0,74,-74,"","In Progress","Fix Hreflang redirect and Broken hreflang URL along with x-default tag","62 Localisation related issues with blog and wordpress: localisation in progress",null],[5,"Hreflang conflicts within page source code","Medium","Dataiku",0,0,13,-13,"","In Progress","Implement self-referencing hreflang along with x-default tag","9 conflicts all but one JA - other to update with removal of links with parameters from tracking\nLocalization migration in progress",null],[6,"Incorrect pages found in sitemap.xml","Medium","Dataiku",0,0,42,-42,"","In Progress","Remove incorrect pages from the sitemap XML","40 errors: \nnon-canonical URLs to update in the main seo block on the pages for web team \nJA & DE pages in Wordpress are incorrect because Wordpress has dashes on URLs vs Worpress hasen't. Solve is JA & DE migration with old copy.\n",null],[7,"4xx errors","Medium","Dataiku",899,899,63,836,0.9299221357,"Completed","Remove all 404 URLs from internal links","64 pages to fix by fixing the broken internal links above (we remove them)",null],[8,"Duplicate meta descriptions","Low","Pepper/Dataiku",251,251,5,246,0.9800796813,"In Progress","• If parameters are for sorting, filtering, tracking (e.g. ?post_type, ?__hstc, ?utm_source=...), then: Add canonical → main clean URL\n• Unique meta description tags on paginated urls: \"\u003cmeta description> – Page 2\"\n• If possible, block these parametric URLs using robots.txt","5 need guidance to solve unclear from audit",null],[9,"Duplicate title tag","Low","Pepper/Dataiku",61232,61232,2,61230,0.9999673373,"In Progress","• If parameters are for sorting, filtering, tracking (e.g. ?post_type, ?__hstc, ?utm_source=...), then: Add canonical → main clean URL\n• Unique title description tags on paginated urls: \"\u003ctitle> – Page 2\"\n• If possible, block these parametric URLs using robots.txt","2 issues with News tag: need to seperate the 2 tags out to show both seperate. Create a new tag for blog and retag.",null],[10,"Duplicate content","Low","Dataiku",59673,59673,0,59673,1,"In Progress","• If parameters are for sorting, filtering, tracking (e.g. ?post_type, ?__hstc, ?utm_source=...), then: Add canonical → main clean URL\n• If possible, block these parametric URLs using robots.txt","Unsure what this one is it's not in our latest semrush audit ",null],[11,"Broken canonical URLs","Low","Dataiku",725,725,6,719,0.9917241379,"In Progress","Add self referencing canonical tag on the URL","6 pages, 5 blog posts for web team to fix in contentful (main seo element) one Ja page.",null],[12,"Update Robots.txt","High","Dataiku","To Do Activity","To Do Activity","To Do Activity","To Do Activity","-","In Progress","•  Block dynamic URL parameters from robots.txt to avoid duplicate page/page elements and redirection issues.\n•  Post-implementation, a major chunk of issues would get resolved as they are primarily caused by duplicate issues.","This may be solved I'm not seeig any duplicate pages",null],[null,null,null,null,null,null,null,null,null,null,null,null,null],[null,"931 issues with blocked internal resources in robots.txt",null,null,null,null,null,null,null,null,null,"Question: we've blocked https://www.dataiku.com/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js which was the recommendation I found online and now it's shosing as issues","if these pages are not affecting the rendering of the page, we can ignore the warning"],[null,"394 pages have duplicate H1 and title tags",null,null,null,null,null,null,null,null,null,"Question: these are all our blog posts I don't understand why it's a problem. The titles are all long so we can add Blog at the ened to differenciate but it will cut","having unique H1 and title can help us to include more relevant keywords that will help in google's understand and eventually rankings"],[null,"675 external links are broken",null,null,null,null,null,null,null,null,null,"Question: weirdly these are lots of X urls that are not broken why are they showing up broken?","Need more clarity"],[null,"103,186 orphaned pages in Google Analytics",null,null,null,null,null,null,null,null,null,"Question: This showed up in our audit by connecting Google analytics what do we do about it? it seems to be all parameters","Can you share the dump of URLs?"],[null,"3,922 URLs with a permanent redirect",null,null,null,null,null,null,null,null,null,"Question: how much should we prioritize removing all links that redirect from the website.","High Priority - The final URLs should be added instead of redirected URLs to pass link juice properly"],[null,"21 pages don't have meta descriptions",null,null,null,null,null,null,null,null,null,"Blog posts: easy to check the main seo and publish or fix it","Can be taken on very low priority"],[null,"59 pages have a low word count",null,null,null,null,null,null,null,null,null,"German & JA pages in Wordpress","Can be taken on very low priority"]]},"meta":{"file":"Dataiku TechnicalSEO Audit tracker.xlsx","loadedAt":"31 Aug 2026"}}</script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ============================ helpers ============================ */
+  function norm(s) { return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]/g, ""); }
+  function txt(v) { return v == null ? "" : String(v).replace(/\s+/g, " ").trim(); }
+  function raw(v) { return v == null ? "" : String(v).trim(); }
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function nf(v) { return isNum(v) ? v.toLocaleString("en-US") : (raw(v) || "—"); }
+  function pct(v) {
+    if (!isNum(v)) return raw(v) || "—";
+    var p = v <= 1.0001 ? v * 100 : v;
+    return (Math.abs(p - Math.round(p)) < 0.05 ? p.toFixed(0) : p.toFixed(1)) + "%";
+  }
+  function shortSite(s) { return raw(s).replace(/^https?:\/\//, "").replace(/\/$/, ""); }
+  function monthShort(label) {
+    var m = raw(label).match(/([A-Za-z]{3,9})\D*((?:19|20)?\d{2})/);
+    if (!m) return raw(label);
+    return m[1].slice(0, 3) + " '" + m[2].slice(-2);
+  }
+  function toast(msg, kind) {
+    var t = $("#toast");
+    $("#toast-msg").textContent = msg;
+    t.className = "on" + (kind ? " " + kind : "");
+    clearTimeout(toast._t);
+    if (kind !== "work") toast._t = setTimeout(function () { t.className = ""; }, 4200);
+  }
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+  /* ============================ workbook -> grids ============================ */
+  function pickSheets(names) {
+    var n = names.map(function (x) { return { raw: x, k: norm(x) }; });
+    function find(f) { var r = n.filter(f)[0]; return r ? r.raw : null; }
+    return {
+      summary: find(function (x) { return x.k.indexOf("summary") > -1 && x.k.indexOf("domain") > -1; }),
+      errors: find(function (x) { return x.k.indexOf("errorswarnings") > -1 && x.k.indexOf("summary") < 0; }),
+      audit: find(function (x) { return x.k.indexOf("technicalaudittracker") > -1 && (x.k.indexOf("www") > -1 || x.k.indexOf("dataiku") > -1); })
+        || find(function (x) { return x.k.indexOf("technicalaudittracker") > -1; })
+    };
+  }
+  function trimGrid(g) {
+    var blank = function (r) { return !r || r.every(function (c) { return c === null || c === undefined || String(c).trim() === ""; }); };
+    while (g.length && blank(g[g.length - 1])) g.pop();
+    return g;
+  }
+  function payloadFromWorkbook(wb, meta) {
+    var sel = pickSheets(wb.SheetNames), grids = {};
+    Object.keys(sel).forEach(function (k) {
+      grids[k] = sel[k] ? trimGrid(XLSX.utils.sheet_to_json(wb.Sheets[sel[k]], { header: 1, raw: true, defval: null, blankrows: true })) : null;
+    });
+    return { sheetNames: sel, grids: grids, meta: meta };
+  }
+
+  /* ============================ grids -> models ============================ */
+  function rowIndexWhere(g, fn) { for (var i = 0; i < g.length; i++) { if (g[i] && fn(g[i], i)) return i; } return -1; }
+  function colWhere(row, fn) { for (var j = 0; j < row.length; j++) { if (fn(norm(row[j]), row[j], j)) return j; } return -1; }
+
+  function buildHealth(g) {
+    if (!g) return null;
+    var hi = rowIndexWhere(g, function (r) { return r.some(function (c) { return norm(c) === "domainsubdomain"; }); });
+    if (hi < 0) return null;
+    var h = g[hi];
+    var cName = colWhere(h, function (k) { return k === "domainsubdomain"; });
+    var cType = colWhere(h, function (k) { return k === "type"; });
+    var cTrend = colWhere(h, function (k) { return k === "trend"; });
+    var cNotes = colWhere(h, function (k) { return k === "notes"; });
+    var months = [];
+    h.forEach(function (c, j) { if (/health$/.test(norm(c))) months.push({ col: j, label: txt(c).replace(/\s*health\s*$/i, ""), short: monthShort(c) }); });
+    var rows = [];
+    for (var i = hi + 1; i < g.length; i++) {
+      var r = g[i] || [];
+      if (!raw(r[cName])) continue;
+      if (!months.some(function (m) { return isNum(r[m.col]); })) continue;
+      rows.push({
+        n: rows.length + 1,
+        name: txt(r[cName]),
+        type: txt(r[cType]),
+        trend: txt(r[cTrend]),
+        notes: txt(r[cNotes]),
+        vals: months.map(function (m) { return isNum(r[m.col]) ? r[m.col] : null; })
+      });
+    }
+    var groups = [], cur = null;
+    for (var k = hi + 1; k < g.length; k++) {
+      var rr = g[k] || [], first = norm(rr[0]);
+      if (first.indexOf("fixnow") > -1 || first.indexOf("holduntil") > -1) { cur = { title: txt(rr[0]), items: [] }; groups.push(cur); continue; }
+      if (cur && isNum(rr[0]) && raw(rr[1])) cur.items.push({ title: txt(rr[1]), why: txt(rr[2]) });
+    }
+    return { months: months, rows: rows, groups: groups };
+  }
+
+  var METRICS = { pagescrawled: "pages", sitehealth: "health", errors: "errors", warning: "warnings", warnings: "warnings" };
+  function buildErrors(g) {
+    if (!g) return null;
+    var hi = rowIndexWhere(g, function (r) { return r.some(function (c) { return norm(c) === "website"; }); });
+    if (hi < 0) return null;
+    var h = g[hi], mrow = hi > 0 ? (g[hi - 1] || []) : [];
+    var cSite = colWhere(h, function (k) { return k === "website"; });
+    var cType = colWhere(h, function (k) { return k === "domainsubdomain"; });
+    var months = [], byLabel = {};
+    h.forEach(function (c, j) {
+      var key = METRICS[norm(c)];
+      if (!key) return;
+      var lab = "";
+      for (var b = j; b >= 0; b--) { if (raw(mrow[b])) { lab = txt(mrow[b]); break; } }
+      if (!lab) lab = "Period " + (months.length + 1);
+      if (!byLabel[lab]) { byLabel[lab] = { label: lab, short: monthShort(lab), cols: {} }; months.push(byLabel[lab]); }
+      byLabel[lab].cols[key] = j;
+    });
+    var rows = [];
+    for (var i = hi + 1; i < g.length; i++) {
+      var r = g[i] || [];
+      if (!raw(r[cSite])) continue;
+      var vals = months.map(function (m) {
+        var o = {};
+        Object.keys(m.cols).forEach(function (k) { var v = r[m.cols[k]]; o[k] = isNum(v) ? v : null; });
+        var pc = m.cols.pages != null ? r[m.cols.pages] : null;
+        o.note = (!isNum(pc) && raw(pc)) ? txt(pc) : "";
+        return o;
+      });
+      var blocked = vals.every(function (v) { return v.pages == null; });
+      rows.push({ site: shortSite(r[cSite]), full: raw(r[cSite]), type: txt(r[cType]), vals: vals, blocked: blocked, note: (vals.filter(function (v) { return v.note; })[0] || {}).note || "" });
+    }
+    return { months: months, rows: rows };
+  }
+
+  function buildAudit(g) {
+    if (!g) return null;
+    var hi = rowIndexWhere(g, function (r) { return r.some(function (c) { return norm(c) === "issue"; }); });
+    if (hi < 0) return null;
+    var h = g[hi];
+    var cIssue = colWhere(h, function (k) { return k === "issue"; });
+    var cPrio = colWhere(h, function (k) { return k === "priority"; });
+    var cOwner = colWhere(h, function (k) { return k === "owner"; });
+    var cFixed = colWhere(h, function (k) { return k === "urlsfixed"; });
+    var cPct = colWhere(h, function (k) { return k === "resolved"; });
+    var cStatus = colWhere(h, function (k) { return k === "status"; });
+    var cRec = colWhere(h, function (k) { return k === "recommendation"; });
+    var cCmt = colWhere(h, function (k) { return k.indexOf("comment") > -1; });
+    var urlCols = [];
+    h.forEach(function (c, j) {
+      if (norm(c).indexOf("urlsinissue") === 0) {
+        var m = txt(c).match(/\(([^)]+)\)/);
+        urlCols.push({ col: j, label: m ? m[1] : txt(c), short: monthShort(m ? m[1] : txt(c)) });
+      }
+    });
+    var issues = [], questions = [];
+    for (var i = hi + 1; i < g.length; i++) {
+      var r = g[i] || [];
+      if (!raw(r[cIssue])) continue;
+      if (isNum(r[0])) {
+        issues.push({
+          n: r[0], issue: txt(r[cIssue]), priority: txt(r[cPrio]), owner: txt(r[cOwner]),
+          urls: urlCols.map(function (u) { return isNum(r[u.col]) ? r[u.col] : (raw(r[u.col]) || null); }),
+          fixed: isNum(r[cFixed]) ? r[cFixed] : null,
+          fixedText: isNum(r[cFixed]) ? null : raw(r[cFixed]),
+          pctRes: isNum(r[cPct]) ? r[cPct] : null,
+          status: txt(r[cStatus]), rec: raw(r[cRec]), comment: raw(r[cCmt])
+        });
+      } else {
+        questions.push({ topic: txt(r[cIssue]), q: raw(r[cCmt]), a: raw(r[cCmt + 1]) });
+      }
+    }
+    var updated = "";
+    for (var k = 0; k < Math.min(hi, 6); k++) {
+      (g[k] || []).forEach(function (c) { if (/updated on/i.test(raw(c))) updated = txt(c); });
+    }
+    return { months: urlCols, issues: issues, questions: questions, updated: updated };
+  }
+
+  /* ============================ SVG charts ============================ */
+  function niceTicks(min, max, want) {
+    if (!(max > min)) { max = min + 1; }
+    var span = max - min, step = Math.pow(10, Math.floor(Math.log(span / want) / Math.LN10));
+    var err = (span / want) / step;
+    if (err >= 7.5) step *= 10; else if (err >= 3.5) step *= 5; else if (err >= 1.5) step *= 2;
+    var lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, out = [];
+    for (var v = lo; v <= hi + step / 2; v += step) out.push(Math.round(v / step) * step);
+    return out;
+  }
+
+  function lineChart(box, cfg) {
+    var W = Math.max(box.clientWidth || 640, 300), H = cfg.height || 300;
+    var pl = 52, pr = 14, pt = 14, pb = 30;
+    var iw = W - pl - pr, ih = H - pt - pb;
+    var vis = cfg.series.filter(function (s) { return !s.off; });
+    var all = [];
+    vis.forEach(function (s) { s.values.forEach(function (v) { if (isNum(v)) all.push(v); }); });
+    if (!all.length) { box.innerHTML = '<p class="empty">No values to plot.</p>'; return; }
+    var ticks = niceTicks(Math.min.apply(null, all), Math.max.apply(null, all), 4);
+    var lo = ticks[0], hi = ticks[ticks.length - 1];
+    var n = cfg.labels.length;
+    var X = function (i) { return pl + (n === 1 ? iw / 2 : iw * i / (n - 1)); };
+    var Y = function (v) { return pt + ih - ih * (v - lo) / (hi - lo || 1); };
+    var s = ['<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' + esc(cfg.aria || "Trend chart") + '">'];
+    ticks.forEach(function (t) {
+      s.push('<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '" stroke="' + cssVar("--grid") + '" stroke-width="1"/>');
+      s.push('<text x="' + (pl - 10) + '" y="' + (Y(t) + 3.5).toFixed(1) + '" text-anchor="end" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="10.5" fill="' + cssVar("--muted") + '">' + esc(cfg.fmtTick(t)) + '</text>');
+    });
+    cfg.labels.forEach(function (l, i) {
+      s.push('<text x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="10.5" fill="' + cssVar("--muted") + '">' + esc(l) + '</text>');
+    });
+    vis.forEach(function (ser) {
+      var d = "", started = false;
+      ser.values.forEach(function (v, i) {
+        if (!isNum(v)) { started = false; return; }
+        d += (started ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " ";
+        started = true;
+      });
+      s.push('<path d="' + d + '" fill="none" stroke="' + ser.color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
+      ser.values.forEach(function (v, i) {
+        if (!isNum(v)) return;
+        s.push('<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.2" fill="' + ser.color + '" stroke="' + cssVar("--surface") + '" stroke-width="2"/>');
+      });
+    });
+    s.push('<line class="cross" x1="0" x2="0" y1="' + pt + '" y2="' + (pt + ih) + '" stroke="' + cssVar("--line-2") + '" stroke-width="1" opacity="0"/>');
+    s.push('<rect x="' + pl + '" y="' + pt + '" width="' + iw + '" height="' + ih + '" fill="transparent" class="hit"/>');
+    s.push("</svg><div class=\"tip\"></div>");
+    box.innerHTML = s.join("");
+    var svg = box.querySelector("svg"), tip = box.querySelector(".tip"), cross = box.querySelector(".cross");
+    function move(ev) {
+      var rect = svg.getBoundingClientRect();
+      var px = (ev.clientX - rect.left) * (W / rect.width);
+      var i = Math.max(0, Math.min(n - 1, Math.round((px - pl) / (n > 1 ? iw / (n - 1) : 1))));
+      cross.setAttribute("x1", X(i).toFixed(1)); cross.setAttribute("x2", X(i).toFixed(1)); cross.setAttribute("opacity", "1");
+      var rows = vis.filter(function (ser) { return isNum(ser.values[i]); })
+        .sort(function (a, b) { return b.values[i] - a.values[i]; })
+        .map(function (ser) {
+          return '<div class="tr"><span class="nm"><i class="sw" style="background:' + ser.color + '"></i>' + esc(ser.label) + '</span><b>' + esc(cfg.fmtVal(ser.values[i])) + "</b></div>";
+        }).join("");
+      tip.innerHTML = '<div class="th">' + esc(cfg.labels[i]) + "</div>" + rows;
+      tip.style.opacity = "1";
+      var tw = tip.offsetWidth, left = X(i) * (rect.width / W) + 14;
+      if (left + tw > rect.width) left = X(i) * (rect.width / W) - tw - 14;
+      tip.style.left = Math.max(2, left) + "px";
+      tip.style.top = Math.min(rect.height - tip.offsetHeight - 4, Math.max(2, (ev.clientY - rect.top) - tip.offsetHeight / 2)) + "px";
+    }
+    svg.addEventListener("mousemove", move);
+    svg.addEventListener("mouseleave", function () { tip.style.opacity = "0"; cross.setAttribute("opacity", "0"); });
+  }
+
+  function sparkline(box, values, color, fmt, labels) {
+    var W = Math.max(box.clientWidth || 190, 120), H = 52, pad = 5;
+    var pts = values.filter(isNum);
+    if (!pts.length) { box.innerHTML = '<p class="empty" style="padding:6px 0">No data</p>'; return; }
+    var lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+    if (hi === lo) { hi = lo + Math.abs(lo || 1) * 0.1; lo = lo - Math.abs(lo || 1) * 0.1; }
+    var n = values.length;
+    var X = function (i) { return pad + (n === 1 ? (W - 2 * pad) / 2 : (W - 2 * pad) * i / (n - 1)); };
+    var Y = function (v) { return pad + (H - 2 * pad) - (H - 2 * pad) * (v - lo) / (hi - lo); };
+    var d = "", area = "", started = false, lastI = -1;
+    values.forEach(function (v, i) {
+      if (!isNum(v)) { started = false; return; }
+      d += (started ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " ";
+      started = true; lastI = i;
+    });
+    var first = values.findIndex(isNum);
+    if (first > -1 && lastI > -1) area = "M" + X(first).toFixed(1) + " " + (H - pad) + " " + d.replace(/^M/, "L") + "L" + X(lastI).toFixed(1) + " " + (H - pad) + " Z";
+    var id = "g" + Math.random().toString(36).slice(2, 8);
+    var s = ['<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="sparkline">'];
+    s.push('<defs><linearGradient id="' + id + '" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="' + color + '" stop-opacity=".22"/><stop offset="1" stop-color="' + color + '" stop-opacity="0"/></linearGradient></defs>');
+    if (area) s.push('<path d="' + area + '" fill="url(#' + id + ')"/>');
+    s.push('<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
+    if (lastI > -1) s.push('<circle cx="' + X(lastI).toFixed(1) + '" cy="' + Y(values[lastI]).toFixed(1) + '" r="3.4" fill="' + color + '" stroke="' + cssVar("--surface-2") + '" stroke-width="2"/>');
+    s.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="transparent" class="hit"/></svg><div class="tip"></div>');
+    box.innerHTML = s.join("");
+    var svg = box.querySelector("svg"), tip = box.querySelector(".tip");
+    svg.addEventListener("mousemove", function (ev) {
+      var rect = svg.getBoundingClientRect();
+      var px = (ev.clientX - rect.left) * (W / rect.width);
+      var i = Math.max(0, Math.min(n - 1, Math.round((px - pad) / ((W - 2 * pad) / Math.max(1, n - 1)))));
+      if (!isNum(values[i])) { tip.style.opacity = "0"; return; }
+      tip.innerHTML = '<div class="th">' + esc(labels[i]) + '</div><div class="tr"><span class="nm">value</span><b>' + esc(fmt(values[i])) + "</b></div>";
+      tip.style.opacity = "1";
+      var left = X(i) * (rect.width / W) + 10;
+      if (left + tip.offsetWidth > rect.width) left = rect.width - tip.offsetWidth - 2;
+      tip.style.left = Math.max(0, left) + "px";
+      tip.style.top = "-6px";
+    });
+    svg.addEventListener("mouseleave", function () { tip.style.opacity = "0"; });
+  }
+
+  /* ============================ state ============================ */
+  var SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--s7"];
+  function seriesColor(i) { return cssVar(SERIES[i % SERIES.length]); }
+  var STATE = { payload: null, health: null, errors: null, audit: null };
+  var UI = { tab: "health", metric: "errors", hidden: {}, open: {} };
+  var PRISTINE = null;
+  var charts = [];
+
+  function loadPayload(p) {
+    STATE.payload = p;
+    STATE.health = buildHealth(p.grids.summary);
+    STATE.errors = buildErrors(p.grids.errors);
+    STATE.audit = buildAudit(p.grids.audit);
+  }
+
+  /* ============================ render: site health ============================ */
+  function renderHealth() {
+    var el = $("#panel-health"), m = STATE.health;
+    charts = charts.filter(function (c) { return !el.contains(c.box); });
+    if (!m || !m.rows.length) { el.innerHTML = '<div class="card"><p class="empty">The summary sheet (Domain / Subdomain tracker) wasn\'t found in this workbook.</p></div>'; return; }
+    var L = m.months.length - 1, P = L - 1;
+    var main = m.rows[0];
+    var improving = m.rows.filter(function (r) { return isNum(r.vals[L]) && isNum(r.vals[P]) && r.vals[L] > r.vals[P]; }).length;
+    var ranked = m.rows.filter(function (r) { return isNum(r.vals[L]); }).slice().sort(function (a, b) { return b.vals[L] - a.vals[L]; });
+    var best = ranked[0], worst = ranked[ranked.length - 1];
+    var lastLab = m.months[L] ? m.months[L].label : "";
+
+    function deltaChip(r, invert) {
+      if (!isNum(r.vals[L]) || !isNum(r.vals[P])) return "";
+      var d = (r.vals[L] - r.vals[P]) * 100;
+      var cls = Math.abs(d) < 0.05 ? "" : (d > 0 ? (invert ? "down" : "up") : (invert ? "up" : "down"));
+      return '<span class="delta ' + cls + '">' + (d > 0 ? "+" : "") + d.toFixed(1) + " pp</span>";
+    }
+    var h = [];
+    h.push('<div class="grid kpis">');
+    h.push(kpi("Full domain health", pct(main.vals[L]), deltaChip(main) + " vs " + esc(m.months[P] ? m.months[P].short : "prior"), cssVar("--s1")));
+    h.push(kpi("Properties improving", improving + " / " + m.rows.length, "month on month", cssVar("--good")));
+    h.push(kpi("Strongest property", pct(best.vals[L]), esc(best.name), cssVar("--s3")));
+    h.push(kpi("Weakest property", pct(worst.vals[L]), esc(worst.name), cssVar("--crit")));
+    h.push("</div>");
+    var mainUp = isNum(main.vals[L]) && isNum(main.vals[P]) && main.vals[L] >= main.vals[P];
+    h.push(callout(mainUp ? "good" : "warn",
+      "<b>" + esc(lastLab) + "</b> \u2014 full-domain health " + hl(pct(main.vals[L])) +
+      (isNum(main.vals[P]) ? ", " + (mainUp ? "up" : "down") + " " + hl(Math.abs((main.vals[L] - main.vals[P]) * 100).toFixed(1) + " pp") + " on " + esc(m.months[P].label) : "") +
+      ". " + hl(improving + " of " + m.rows.length) + " properties improved. Strongest: <b>" + esc(best.name) + "</b> at " + hl(pct(best.vals[L])) +
+      "; weakest: <b>" + esc(worst.name) + "</b> at " + hl(pct(worst.vals[L])) + "."));
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s1")) + 'Health score by property</h2><div class="sub">Site health across ' + m.months.length + " reporting periods · click a name to hide it</div></div></header>");
+    h.push('<div class="chartbox" id="ch-health"></div><div class="legend" id="lg-health"></div></div>');
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s3")) + 'Monthly detail</h2><div class="sub">Latest column: ' + esc(lastLab) + "</div></div></header><div class=\"tscroll\"><table><thead><tr>");
+    h.push('<th class="l">Property</th><th class="l">Type</th>');
+    m.months.forEach(function (mo) { h.push("<th>" + esc(mo.short) + "</th>"); });
+    h.push('<th>MoM</th><th class="l">Notes</th></tr></thead><tbody>');
+    m.rows.forEach(function (r, i) {
+      h.push("<tr>");
+      h.push('<td class="l name"><span class="sw" style="display:inline-block;background:' + seriesColor(i) + ';margin-right:7px;vertical-align:middle"></span>' + esc(r.name) + "</td>");
+      h.push('<td class="l" style="color:var(--muted);font-size:12px">' + esc(r.type) + "</td>");
+      r.vals.forEach(function (v, j) {
+        var strong = j === L ? ' style="font-weight:600"' : "";
+        h.push("<td" + strong + ">" + (isNum(v) ? pct(v) : "—") + "</td>");
+      });
+      h.push("<td>" + deltaChip(r) + "</td>");
+      h.push('<td class="l" style="color:var(--ink-2);font-size:12.5px;min-width:280px;max-width:460px;white-space:normal">' + esc(r.notes) + "</td>");
+      h.push("</tr>");
+    });
+    h.push("</tbody></table></div>");
+    var odd = m.months.filter(function (mo) { return /20(2[7-9]|[3-9]\d)/.test(mo.label); });
+    if (odd.length) h.push('<div class="notes"><span><b>Column header check.</b> The summary sheet labels the latest period &ldquo;' + esc(odd[0].label) + '&rdquo;, while the errors sheet calls the same period ' + esc((STATE.errors && STATE.errors.months.length ? STATE.errors.months[STATE.errors.months.length - 1].label : "the current month")) + ". Worth correcting in the workbook.</span></div>");
+    h.push("</div>");
+
+    if (m.groups.length) {
+      h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s2")) + 'Sequencing against the migration</h2><div class="sub">What to fix now versus what to hold, straight from the tracker</div></div></header><div class="acts">');
+      m.groups.forEach(function (grp, gi) {
+        var col = gi === 0 ? cssVar("--crit") : cssVar("--s7");
+        h.push('<div class="actcol" style="--lc:' + col + '"><h3><i class="stripe" style="background:' + col + '"></i>' + esc(grp.title) + "</h3><ol>");
+        grp.items.forEach(function (it) { h.push("<li><div><b>" + esc(it.title) + "</b><span>" + esc(it.why) + "</span></div></li>"); });
+        h.push("</ol></div>");
+      });
+      h.push("</div></div>");
+    }
+    el.innerHTML = h.join("");
+
+    var labels = m.months.map(function (mo) { return mo.short; });
+    var series = m.rows.map(function (r, i) {
+      return { label: r.name, color: seriesColor(i), values: r.vals, off: !!UI.hidden[r.name] };
+    });
+    var box = $("#ch-health");
+    var draw = function () { lineChart(box, { labels: labels, series: series, height: 320, fmtTick: function (t) { return pct(t); }, fmtVal: function (v) { return pct(v); }, aria: "Site health score by property over time" }); };
+    draw(); charts.push({ box: box, draw: draw });
+    var lg = $("#lg-health");
+    lg.innerHTML = m.rows.map(function (r, i) {
+      return '<button class="lgi" type="button" data-name="' + esc(r.name) + '" aria-pressed="' + (UI.hidden[r.name] ? "false" : "true") + '"><i class="sw" style="background:' + seriesColor(i) + '"></i>' + esc(r.name) + "</button>";
+    }).join("");
+    $$(".lgi", lg).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var nm = b.getAttribute("data-name");
+        UI.hidden[nm] = !UI.hidden[nm];
+        if (m.rows.every(function (r) { return UI.hidden[r.name]; })) UI.hidden[nm] = false;
+        renderHealth();
+      });
+    });
+  }
+
+  function kpi(label, value, foot, color) {
+    return '<div class="kpi" style="--kc:' + (color || cssVar("--accent")) + '"><div class="lbl">' + esc(label) + '</div><div class="val">' + value + '</div><div class="foot">' + (foot || "") + "</div></div>";
+  }
+  function callout(kind, html) {
+    var ic = { good: "\u2713", warn: "\u25B3", bad: "\u25B3", info: "\u2139" }[kind] || "\u2139";
+    return '<div class="callout ' + kind + '"><span class="ic">' + ic + "</span><span>" + html + "</span></div>";
+  }
+  function hl(t) { return '<span class="hl">' + esc(t) + "</span>"; }
+  function tick(c) { return '<span class="tick" style="background:' + c + '"></span>'; }
+
+  /* ============================ render: errors & warnings ============================ */
+  var METRIC_META = {
+    errors: { name: "Errors", fmt: nf, good: "down" },
+    warnings: { name: "Warnings", fmt: nf, good: "down" },
+    health: { name: "Site health", fmt: pct, good: "up" },
+    pages: { name: "Pages crawled", fmt: nf, good: "flat" }
+  };
+  function renderErrors() {
+    var el = $("#panel-errors"), m = STATE.errors;
+    charts = charts.filter(function (c) { return !el.contains(c.box); });
+    if (!m || !m.rows.length) { el.innerHTML = '<div class="card"><p class="empty">The Errors &amp; Warnings Tracker sheet wasn\'t found in this workbook.</p></div>'; return; }
+    var L = m.months.length - 1, P = L - 1;
+    var live = m.rows.filter(function (r) { return !r.blocked; });
+    var isRollup = function (r) { return norm(r.type).indexOf("includingsubdomain") > -1; };
+    var parts = live.filter(function (r) { return !isRollup(r); });
+    var rollup = live.filter(isRollup).length > 0;
+    var sum = function (i, k) { return parts.reduce(function (a, r) { return a + (isNum(r.vals[i] && r.vals[i][k]) ? r.vals[i][k] : 0); }, 0); };
+    var mk = METRIC_META[UI.metric];
+
+    function chip(now, prev, good) {
+      if (!isNum(now) || !isNum(prev) || prev === 0) return "";
+      var d = (now - prev) / Math.abs(prev) * 100;
+      var cls = (good === "flat" || Math.abs(d) < 0.5) ? "" : ((d > 0) === (good === "up") ? "up" : "down");
+      return '<span class="delta ' + cls + '">' + (d > 0 ? "+" : "") + d.toFixed(0) + "%</span>";
+    }
+    var h = [];
+    h.push('<div class="grid kpis">');
+    h.push(kpi("Errors · " + (m.months[L] ? m.months[L].short : ""), nf(sum(L, "errors")), chip(sum(L, "errors"), sum(P, "errors"), "down") + " vs " + esc(m.months[P] ? m.months[P].short : "prior"), cssVar("--s2")));
+    h.push(kpi("Warnings · " + (m.months[L] ? m.months[L].short : ""), nf(sum(L, "warnings")), chip(sum(L, "warnings"), sum(P, "warnings"), "down") + " vs " + esc(m.months[P] ? m.months[P].short : "prior"), cssVar("--s4")));
+    h.push(kpi("Pages crawled", nf(sum(L, "pages")), "across " + parts.length + " crawled properties", cssVar("--s7")));
+    h.push(kpi("Properties tracked", String(m.rows.length), (m.rows.length - live.length) + " excluded from crawling" + (rollup ? " · totals exclude the all-subdomains roll-up" : ""), cssVar("--s1")));
+    h.push("</div>");
+
+    var colorOf = function (r) { return seriesColor(m.rows.indexOf(r)); };
+    var comp = parts.map(function (r) { return { r: r, v: isNum(r.vals[L].errors) ? r.vals[L].errors : 0 }; })
+      .filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
+    var compTotal = comp.reduce(function (a, x) { return a + x.v; }, 0);
+    var errUp = sum(L, "errors") > sum(P, "errors");
+    h.push(callout(errUp ? "bad" : "good",
+      "<b>" + esc(m.months[L] ? m.months[L].label : "") + "</b> \u2014 " + hl(nf(sum(L, "errors"))) + " errors and " + hl(nf(sum(L, "warnings"))) +
+      " warnings across " + parts.length + " crawled properties" +
+      (comp.length ? ". <b>" + esc(comp[0].r.site) + "</b> alone accounts for " + hl((comp[0].v / compTotal * 100).toFixed(1) + "%") + " of them" : "") + "."));
+
+    if (comp.length > 1) {
+      h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s2")) + 'Where the errors sit</h2><div class="sub">Share of all errors in ' + esc(m.months[L].label) + ', roll-up row excluded</div></div></header>');
+      h.push('<div class="share">' + comp.map(function (x) {
+        return '<i style="width:' + (x.v / compTotal * 100) + "%;background:" + colorOf(x.r) + '" title="' + esc(x.r.site) + ": " + nf(x.v) + '"></i>';
+      }).join("") + "</div>");
+      h.push('<div class="sharelab">' + comp.map(function (x) {
+        return '<span><i class="sw" style="background:' + colorOf(x.r) + '"></i>' + esc(x.r.site) + " <b>" + (x.v / compTotal * 100).toFixed(1) + "%</b></span>";
+      }).join("") + "</div></div>");
+    }
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s3")) + esc(mk.name) + ' by property</h2><div class="sub">Each panel is scaled to its own property — compare shape, not height</div></div>');
+    h.push('<div class="seg" id="seg-metric">' + Object.keys(METRIC_META).map(function (k) {
+      return '<button type="button" data-m="' + k + '" aria-pressed="' + (UI.metric === k ? "true" : "false") + '">' + esc(METRIC_META[k].name) + "</button>";
+    }).join("") + "</div></header>");
+    h.push('<div class="smgrid" id="sm-grid">');
+    live.forEach(function (r, i) {
+      var vals = r.vals.map(function (v) { return v[UI.metric]; });
+      h.push('<div class="sm"><div class="nm" title="' + esc(r.full) + '">' + esc(r.site) + '</div><div class="scope">' + esc(r.type || "\u00a0") + '</div><div class="v">' + esc(mk.fmt(vals[L])) + chip(vals[L], vals[P], mk.good) + '</div><div class="chartbox" data-spark="' + i + '"></div></div>');
+    });
+    h.push("</div>");
+    var blockedRows = m.rows.filter(function (r) { return r.blocked; });
+    if (blockedRows.length) {
+      h.push('<div class="notes">' + blockedRows.map(function (r) { return "<span><b>" + esc(r.site) + "</b> — " + esc(r.note || "not crawled") + "</span>"; }).join("") + "</div>");
+    }
+    h.push("</div>");
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s7")) + esc(mk.name) + ' — full history</h2><div class="sub">Every reporting period in the export</div></div></header><div class="tscroll"><table><thead><tr><th class="l">Property</th><th class="l">Scope</th>');
+    m.months.forEach(function (mo) { h.push("<th>" + esc(mo.short) + "</th>"); });
+    h.push('<th>MoM</th></tr></thead><tbody>');
+    m.rows.forEach(function (r) {
+      h.push('<tr><td class="l name">' + esc(r.site) + "</td>");
+      h.push('<td class="l" style="color:var(--muted);font-size:12px">' + esc(r.type) + "</td>");
+      if (r.blocked) {
+        h.push('<td class="l" colspan="' + (m.months.length + 1) + '" style="color:var(--muted);font-size:12.5px">' + esc(r.note || "Not crawled") + "</td>");
+      } else {
+        r.vals.forEach(function (v, j) {
+          var val = v[UI.metric];
+          h.push("<td" + (j === L ? ' style="font-weight:600"' : "") + ">" + (isNum(val) ? esc(mk.fmt(val)) : "—") + "</td>");
+        });
+        h.push("<td>" + chip(r.vals[L][UI.metric], r.vals[P] ? r.vals[P][UI.metric] : null, mk.good) + "</td>");
+      }
+      h.push("</tr>");
+    });
+    h.push("</tbody></table></div>");
+    var carry = [];
+    live.forEach(function (r) {
+      for (var j = 1; j < m.months.length; j++) {
+        var a = r.vals[j], b = r.vals[j - 1];
+        if (isNum(a.errors) && a.errors === b.errors && isNum(a.warnings) && a.warnings === b.warnings) {
+          carry.push(esc(r.site) + " (" + esc(m.months[j].short) + " = " + esc(m.months[j - 1].short) + ")");
+        }
+      }
+    });
+    if (carry.length) h.push('<div class="notes"><span><b>Repeated figures.</b> Errors and warnings are identical to the prior period for: ' + carry.join("; ") + ". Likely a carried-over row rather than a real plateau — worth re-checking the export.</span></div>");
+    h.push("</div>");
+    el.innerHTML = h.join("");
+
+    var labels = m.months.map(function (mo) { return mo.short; });
+    $$("[data-spark]", el).forEach(function (box) {
+      var r = live[+box.getAttribute("data-spark")];
+      var vals = r.vals.map(function (v) { return v[UI.metric]; });
+      var color = seriesColor(m.rows.indexOf(r));
+      var draw = function () { sparkline(box, vals, color, METRIC_META[UI.metric].fmt, labels); };
+      draw(); charts.push({ box: box, draw: draw });
+    });
+    $$("#seg-metric button").forEach(function (b) {
+      b.addEventListener("click", function () { UI.metric = b.getAttribute("data-m"); renderErrors(); });
+    });
+  }
+
+  /* ============================ render: audit tracker ============================ */
+  function renderAudit() {
+    var el = $("#panel-audit"), m = STATE.audit;
+    charts = charts.filter(function (c) { return !el.contains(c.box); });
+    if (!m || !m.issues.length) { el.innerHTML = '<div class="card"><p class="empty">The technical audit tracker sheet wasn\'t found in this workbook.</p></div>'; return; }
+    var L = m.months.length - 1;
+    var lastLab = m.months[L] ? m.months[L].label : "latest";
+    var openUrls = m.issues.reduce(function (a, i) { return a + (isNum(i.urls[L]) ? i.urls[L] : 0); }, 0);
+    var fixedUrls = m.issues.reduce(function (a, i) { return a + (isNum(i.fixed) && i.fixed > 0 ? i.fixed : 0); }, 0);
+    var done = m.issues.filter(function (i) { return /complete/i.test(i.status); }).length;
+    var neu = m.issues.filter(function (i) { return isNum(i.fixed) && i.fixed < 0; });
+    var withPct = m.issues.filter(function (i) { return isNum(i.pctRes); });
+
+    var h = [];
+    h.push('<div class="grid kpis">');
+    h.push(kpi("URLs still open · " + monthShort(lastLab), nf(openUrls), "across " + m.issues.length + " tracked issues", cssVar("--crit")));
+    h.push(kpi("URLs resolved", nf(fixedUrls), "since " + esc(m.months[0] ? monthShort(m.months[0].label) : "the first audit"), cssVar("--good")));
+    h.push(kpi("Issues closed", done + " / " + m.issues.length, neu.length ? neu.length + " newly surfaced this period" : "no new issues this period", cssVar("--s1")));
+    h.push(kpi("Median resolution", withPct.length ? pct(median(withPct.map(function (i) { return i.pctRes; }))) : "—", "of URLs cleared per issue", cssVar("--s3")));
+    h.push("</div>");
+    h.push(callout(neu.length ? "warn" : "info",
+      (m.updated ? "<b>" + esc(m.updated.replace(/^updated on\s*-?\s*/i, "Updated ")) + "</b> \u2014 " : "") +
+      hl(nf(openUrls)) + " URLs still open across " + m.issues.length + " tracked issues, with " + hl(nf(fixedUrls)) +
+      " cleared since " + esc(m.months[0] ? monthShort(m.months[0].label) : "the first audit") + ". " +
+      hl(done + " of " + m.issues.length) + " issues are closed" +
+      (neu.length ? " and " + hl(neu.length) + " surfaced for the first time this period" : "") + "."));
+
+    var PRIO = [{ k: "high", label: "High", c: cssVar("--crit") }, { k: "medium", label: "Medium", c: cssVar("--warn") }, { k: "low", label: "Low", c: cssVar("--s1") }];
+    var byPrio = PRIO.map(function (p) {
+      var rows = m.issues.filter(function (i) { return i.priority.toLowerCase() === p.k; });
+      return { p: p, count: rows.length, open: rows.reduce(function (a, i) { return a + (isNum(i.urls[L]) ? i.urls[L] : 0); }, 0) };
+    }).filter(function (x) { return x.count; });
+    var prioTotal = byPrio.reduce(function (a, x) { return a + x.open; }, 0) || 1;
+    if (byPrio.length) {
+      h.push('<div class="card"><header><div><h2>' + tick(cssVar("--crit")) + 'Open URLs by priority</h2><div class="sub">' + esc(lastLab) + " \u00b7 " + m.issues.length + " issues</div></div></header>");
+      h.push('<div class="share">' + byPrio.map(function (x) {
+        return '<i style="width:' + (x.open / prioTotal * 100) + "%;background:" + x.p.c + '" title="' + esc(x.p.label) + ": " + nf(x.open) + '"></i>';
+      }).join("") + "</div>");
+      h.push('<div class="sharelab">' + byPrio.map(function (x) {
+        return '<span><i class="sw" style="background:' + x.p.c + '"></i>' + esc(x.p.label) + " \u00b7 " + x.count + " issues \u00b7 <b>" + nf(x.open) + "</b> open</span>";
+      }).join("") + "</div></div>");
+    }
+
+    var maxOpen = Math.max.apply(null, m.issues.map(function (i) { return isNum(i.urls[L]) ? i.urls[L] : 0; }).concat([1]));
+    h.push('<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">');
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s2")) + 'Open URLs by issue</h2><div class="sub">' + esc(monthShort(lastLab)) + "</div></div></header><div style=\"display:flex;flex-direction:column;gap:9px\">");
+    m.issues.slice().sort(function (a, b) { return (isNum(b.urls[L]) ? b.urls[L] : -1) - (isNum(a.urls[L]) ? a.urls[L] : -1); }).forEach(function (i) {
+      var v = isNum(i.urls[L]) ? i.urls[L] : null;
+      var col = i.priority.toLowerCase() === "high" ? cssVar("--crit") : (i.priority.toLowerCase() === "medium" ? cssVar("--serious") : cssVar("--s1"));
+      h.push('<div style="display:grid;grid-template-columns:1fr 84px;gap:10px;align-items:center">');
+      h.push('<div style="min-width:0"><div style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(i.issue) + '">' + esc(i.issue) + '</div><div class="bar" style="margin-top:4px"><i style="width:' + (v == null ? 0 : Math.max(v > 0 ? 2 : 0, v / maxOpen * 100)) + "%;background:" + col + '"></i></div></div>');
+      h.push('<div class="num mono" style="text-align:right;font-size:12.5px;color:var(--ink-2)">' + (v == null ? '<span style="color:var(--muted);font-size:11px">' + esc(String(i.urls[L] || "—")) + "</span>" : nf(v)) + "</div></div>");
+    });
+    h.push("</div></div>");
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--good")) + 'Resolution progress</h2><div class="sub">Share of flagged URLs cleared</div></div></header><div style="display:flex;flex-direction:column;gap:9px">');
+    m.issues.slice().sort(function (a, b) { return (isNum(b.pctRes) ? b.pctRes : -1) - (isNum(a.pctRes) ? a.pctRes : -1); }).forEach(function (i) {
+      h.push('<div style="display:grid;grid-template-columns:1fr 84px;gap:10px;align-items:center">');
+      h.push('<div style="min-width:0"><div style="font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(i.issue) + '">' + esc(i.issue) + '</div><div class="bar" style="margin-top:4px"><i style="width:' + (isNum(i.pctRes) ? Math.max(0, Math.min(100, i.pctRes * 100)) : 0) + "%;background:" + (isNum(i.pctRes) && i.pctRes >= 0.98 ? cssVar("--good") : cssVar("--accent")) + '"></i></div></div>');
+      h.push('<div class="num mono" style="text-align:right;font-size:12.5px;color:var(--ink-2)">' + (isNum(i.pctRes) ? pct(i.pctRes) : (isNum(i.fixed) && i.fixed < 0 ? '<span style="color:var(--serious);font-size:11px">new</span>' : '<span style="color:var(--muted);font-size:11px">not sized</span>')) + "</div></div>");
+    });
+    h.push("</div></div></div>");
+
+    h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s1")) + 'Issue log</h2><div class="sub">' + (m.updated ? esc(m.updated) + " · " : "") + "select a row for the recommendation and Dataiku's reply</div></div></header><div class=\"tscroll\"><table><thead><tr>");
+    h.push('<th class="l">Issue</th><th class="l">Priority</th><th class="l">Owner</th>');
+    m.months.forEach(function (mo) { h.push("<th>" + esc(mo.short) + "</th>"); });
+    h.push('<th>Fixed</th><th>Resolved</th><th class="l">Status</th></tr></thead><tbody>');
+    m.issues.forEach(function (i, idx) {
+      var isOpen = !!UI.open[idx];
+      h.push("<tr" + (isOpen ? ' class="open"' : "") + '><td class="l"><button class="rowbtn" data-row="' + idx + '"><span class="chev">▸</span><span>' + esc(i.issue) + "</span></button></td>");
+      h.push('<td class="l"><span class="prio ' + esc(i.priority.toLowerCase()) + '">' + esc(i.priority) + "</span></td>");
+      h.push('<td class="l" style="color:var(--ink-2);font-size:12.5px">' + esc(i.owner) + "</td>");
+      i.urls.forEach(function (u) { h.push("<td>" + (isNum(u) ? nf(u) : '<span style="color:var(--muted);font-size:11px">' + esc(u || "—") + "</span>") + "</td>"); });
+      h.push("<td>" + (isNum(i.fixed) ? (i.fixed < 0 ? '<span style="color:var(--crit-ink)">' + nf(i.fixed) + "</span>" : nf(i.fixed)) : '<span style="color:var(--muted);font-size:11px">' + esc(i.fixedText || "—") + "</span>") + "</td>");
+      h.push("<td>" + (isNum(i.pctRes) ? pct(i.pctRes) : '<span style="color:var(--muted)">—</span>') + "</td>");
+      var cls = /complete/i.test(i.status) ? "done" : "prog";
+      h.push('<td class="l"><span class="pill ' + cls + '"><i class="dot" style="background:' + (cls === "done" ? cssVar("--good") : cssVar("--warn")) + '"></i>' + esc(i.status) + "</span></td></tr>");
+      h.push('<tr class="detail"' + (isOpen ? "" : " hidden") + '><td colspan="' + (6 + m.months.length) + '"><div class="dgrid">');
+      h.push("<div><h4>Recommendation</h4><p>" + (esc(i.rec) || '<span style="color:var(--muted)">Not recorded</span>') + "</p></div>");
+      h.push("<div><h4>Dataiku comment</h4><p>" + (esc(i.comment) || '<span style="color:var(--muted)">No reply yet</span>') + "</p></div>");
+      h.push("</div></td></tr>");
+    });
+    h.push("</tbody></table></div></div>");
+
+    if (m.questions.length) {
+      h.push('<div class="card"><header><div><h2>' + tick(cssVar("--s5")) + 'Open threads</h2><div class="sub">Questions raised on the audit and where they landed</div></div></header><div class="qgrid">');
+      m.questions.forEach(function (q, qi) {
+        h.push('<div class="q" style="--qc:' + seriesColor(qi) + '"><h4>' + esc(q.topic) + "</h4><dl>");
+        if (q.q) h.push("<dt>Dataiku</dt><dd>" + esc(q.q.replace(/^Question:\s*/i, "")) + "</dd>");
+        if (q.a) h.push("<dt>Pepper</dt><dd>" + esc(q.a) + "</dd>");
+        h.push("</dl></div>");
+      });
+      h.push("</div></div>");
+    }
+    el.innerHTML = h.join("");
+    $$(".rowbtn", el).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var idx = +b.getAttribute("data-row");
+        UI.open[idx] = !UI.open[idx];
+        var tr = b.closest("tr"), det = tr.nextElementSibling;
+        tr.classList.toggle("open", !!UI.open[idx]);
+        det.hidden = !UI.open[idx];
+      });
+    });
+  }
+  function median(a) { var s = a.slice().sort(function (x, y) { return x - y; }); var h = Math.floor(s.length / 2); return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; }
+
+  /* ============================ shell ============================ */
+  function renderMeta() {
+    var meta = (STATE.payload && STATE.payload.meta) || {};
+    var latest = "";
+    if (STATE.errors && STATE.errors.months.length) latest = STATE.errors.months[STATE.errors.months.length - 1].label;
+    else if (STATE.health && STATE.health.months.length) latest = STATE.health.months[STATE.health.months.length - 1].label;
+    $("#sub-line").textContent = "Pepper \u00d7 Dataiku Technical SEO Audit \u00b7 Latest: " + (latest || "\u2014");
+    var periods = STATE.errors ? STATE.errors.months.length : (STATE.health ? STATE.health.months.length : 0);
+    $("#sub-tag").textContent = periods ? periods + " reporting periods" : "Tracker";
+    var parts = [];
+    if (STATE.health) parts.push(STATE.health.rows.length + " properties");
+    if (STATE.errors) parts.push(STATE.errors.months.length + " reporting periods");
+    if (STATE.audit) parts.push(STATE.audit.issues.length + " tracked issues");
+    var foot = $("#foot-src");
+    if (foot) foot.textContent = (meta.file ? meta.file + "  \u00b7  " : "") + parts.join("  \u00b7  ");
+    $("#cnt-health").textContent = STATE.health ? STATE.health.rows.length : "";
+    $("#cnt-errors").textContent = STATE.errors ? STATE.errors.rows.length : "";
+    $("#cnt-audit").textContent = STATE.audit ? STATE.audit.issues.length : "";
+  }
+  function renderAll() { renderMeta(); renderHealth(); renderErrors(); renderAudit(); }
+
+  function showTab(name) {
+    UI.tab = name;
+    ["health", "errors", "audit"].forEach(function (t) {
+      $("#tab-" + t).setAttribute("aria-selected", String(t === name));
+      $("#panel-" + t).hidden = t !== name;
+    });
+    charts.forEach(function (c) { if (c.box.offsetParent !== null) c.draw(); });
+  }
+
+  /* ============================ persistence ============================ */
+  function buildDoc() {
+    var json = JSON.stringify(STATE.payload).replace(/</g, "\\u003c");
+    var tag = "<scr" + 'ipt id="tracker-data" type="application/json">' + json + "</scr" + "ipt>";
+    return PRISTINE.replace(/<script[^>]*id="tracker-data"[^>]*>[\s\S]*?<\/script>/i, function () { return tag; });
+  }
+  function persist() {
+    if (!window.claude || typeof window.claude.use !== "function") { toast("Refreshed in your view. Saving for other viewers isn't available here.", "err"); return; }
+    toast("Saving this export for everyone…", "work");
+    window.claude.use("artifact").then(function (api) {
+      if (!api) { toast("Refreshed in your view only — this page can't save new versions.", "err"); return; }
+      return api.publish(buildDoc()).then(function () { toast("Saved. Everyone opening this link now sees the new export."); });
+    }).catch(function (e) {
+      var code = e && (e.code || e.message) || "";
+      if (/conflict/i.test(code)) toast("Someone else saved first — reloading to their version.", "err");
+      else if (/not_writer|not_granted/i.test(code)) toast("Refreshed in your view. You need edit access to save it for everyone.", "err");
+      else toast("Refreshed in your view, but saving for everyone failed.", "err");
+    });
+  }
+
+  function ingest(file) {
+    toast("Reading " + file.name + "…", "work");
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var wb = XLSX.read(new Uint8Array(fr.result), { type: "array" });
+        var p = payloadFromWorkbook(wb, {
+          file: file.name,
+          loadedAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+        });
+        if (!p.grids.summary && !p.grids.errors && !p.grids.audit) {
+          toast("None of the three tracker sheets were found in that workbook.", "err"); return;
+        }
+        var missing = ["summary", "errors", "audit"].filter(function (k) { return !p.grids[k]; });
+        loadPayload(p); renderAll(); showTab(UI.tab);
+        if (missing.length) toast("Loaded, but " + missing.length + " sheet(s) weren't matched by name.", "err");
+        else persist();
+      } catch (err) {
+        toast("Couldn't read that file — is it the .xlsx export?", "err");
+      }
+    };
+    fr.onerror = function () { toast("Couldn't read that file.", "err"); };
+    fr.readAsArrayBuffer(file);
+  }
+
+  /* ============================ boot ============================ */
+  function boot() {
+    PRISTINE = "<!doctype html>\n" + document.documentElement.outerHTML;
+    try { loadPayload(JSON.parse($("#tracker-data").textContent)); } catch (e) { }
+    renderAll();
+    showTab("health");
+
+    ["health", "errors", "audit"].forEach(function (t) {
+      $("#tab-" + t).addEventListener("click", function () { showTab(t); });
+    });
+    var loadBtn = $("#btn-load"), fileInput = $("#file");
+    if (loadBtn && fileInput) {
+      loadBtn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function (e) { if (e.target.files[0]) ingest(e.target.files[0]); e.target.value = ""; });
+    }
+    $("#btn-theme").addEventListener("click", function () {
+      var dark = document.documentElement.getAttribute("data-theme") === "dark";
+      document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+      $("#btn-theme").textContent = dark ? "Dark mode" : "Light mode";
+      renderAll(); showTab(UI.tab);
+    });
+
+    var dz = $("#drop"), depth = 0;
+    window.addEventListener("dragenter", function (e) { e.preventDefault(); depth++; dz.classList.add("on"); });
+    window.addEventListener("dragover", function (e) { e.preventDefault(); });
+    window.addEventListener("dragleave", function () { depth = Math.max(0, depth - 1); if (!depth) dz.classList.remove("on"); });
+    window.addEventListener("drop", function (e) {
+      e.preventDefault(); depth = 0; dz.classList.remove("on");
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) ingest(f);
+    });
+
+    var rt;
+    window.addEventListener("resize", function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () { charts.forEach(function (c) { if (c.box.offsetParent !== null) c.draw(); }); }, 140);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+</script>
+</body></html>
